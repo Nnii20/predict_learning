@@ -107,6 +107,25 @@ def dataset_5():
     return x, y
 
 
+def dataset_6():
+    dfs = pd.read_excel('data/данные.xlsx', sheet_name='Лист1')
+    dataset = {
+        'input': dfs['норм егэ'].to_numpy(),
+        'output': [
+            dfs['Норм дифф исчисление'].to_numpy(),
+            dfs['Норм дискретная матем'].to_numpy(),
+            dfs['Норм алгебра'].to_numpy(),
+            dfs['Норм основы прогр'].to_numpy()
+        ]
+    }
+    x = np.array(dataset['input']).transpose()
+    y = np.array(dataset['output']).transpose()
+    y = np.array([sum(line) / 4 for line in y])
+    print(f"x_shape == {x.shape}\ny_shape == {y.shape}")
+    return x, y
+
+
 if __name__ == "__main__":
     pass
-    dataset_5()
+    # dataset_5()
+    dataset_6()

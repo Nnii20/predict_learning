@@ -6,47 +6,79 @@ matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 
 
-def show_plot(y_pred, y_exp):
-    x = range(len(y_pred))
+def show_plot(y_pred, y_exp, predict_mode):
+    if predict_mode == 4:
+        x = range(len(y_pred))
 
-    plt.subplot(2, 2, 1)
-    plt.scatter(x, [line[0] for line in y_pred], s=30, alpha=0.5, label="Прогноз")
-    plt.scatter(x, [line[0] for line in y_exp], s=30, alpha=0.5, label="Ожидание")
-    plt.title('Дифференциальные исчисления')
+        plt.subplot(2, 2, 1)
+        plt.scatter(x, [line[0] for line in y_pred], s=30, alpha=0.7, c='r', label="Спрогнозировано")
+        plt.scatter(x, [line[0] for line in y_exp], s=30, alpha=0.7, c='g', label="Ожидалось")
+        plt.plot([line[0] for line in y_pred], c='r')
+        plt.plot([line[0] for line in y_exp], c='g')
+        plt.title('Дифференциальные исчисления')
+        plt.legend()
 
-    plt.subplot(2, 2, 2)
-    plt.scatter(x, [line[1] for line in y_pred], s=30, alpha=0.5, label="Прогноз")
-    plt.scatter(x, [line[1] for line in y_exp], s=30, alpha=0.5, label="Ожидание")
-    plt.title('Дискретная математика')
+        plt.subplot(2, 2, 2)
+        plt.scatter(x, [line[1] for line in y_pred], s=30, alpha=0.7, c='r', label="Спрогнозировано")
+        plt.scatter(x, [line[1] for line in y_exp], s=30, alpha=0.7, c='g', label="Ожидалось")
+        plt.plot([line[1] for line in y_pred], c='r')
+        plt.plot([line[1] for line in y_exp], c='g')
+        plt.title('Дискретная математика')
+        plt.legend()
 
-    plt.subplot(2, 2, 3)
-    plt.scatter(x, [line[2] for line in y_pred], s=30, alpha=0.5, label="Прогноз")
-    plt.scatter(x, [line[2] for line in y_exp], s=30, alpha=0.5, label="Ожидание")
-    plt.title('Алгебра')
+        plt.subplot(2, 2, 3)
+        plt.scatter(x, [line[2] for line in y_pred], s=30, alpha=0.7, c='r', label="Спрогнозировано")
+        plt.scatter(x, [line[2] for line in y_exp], s=30, alpha=0.7, c='g', label="Ожидалось")
+        plt.plot([line[2] for line in y_pred], c='r')
+        plt.plot([line[2] for line in y_exp], c='g')
+        plt.title('Алгебра')
+        plt.legend()
 
-    plt.subplot(2, 2, 4)
-    plt.scatter(x, [line[3] for line in y_pred], s=30, alpha=0.5, label="Прогноз")
-    plt.scatter(x, [line[3] for line in y_exp], s=30, alpha=0.5, label="Ожидание")
-    plt.title('Основы программирования')
+        plt.subplot(2, 2, 4)
+        plt.scatter(x, [line[3] for line in y_pred], s=30, alpha=0.7, c='r', label="Спрогнозировано")
+        plt.scatter(x, [line[3] for line in y_exp], s=30, alpha=0.7, c='g', label="Ожидалось")
+        plt.plot([line[3] for line in y_pred], c='r')
+        plt.plot([line[3] for line in y_exp], c='g')
+        plt.title('Основы программирования')
+        plt.legend()
 
-    plt.get_current_fig_manager().window.showMaximized()
-    plt.show()
+        plt.get_current_fig_manager().window.showMaximized()
+        plt.show()
+    elif predict_mode == 1:
+        x = range(len(y_pred))
+        plt.scatter(x, y_pred, s=60, alpha=0.8, c='r', label="Спрогнозировано")
+        plt.scatter(x, y_exp, s=60, alpha=0.8, c='g', label="Ожидалось")
+        plt.plot(y_pred, c='r')
+        plt.plot(y_exp, c='g')
+        plt.legend()
+
+        plt.get_current_fig_manager().window.showMaximized()
+        plt.show()
 
 
-def check_model_accuracy(m: Sequential, x_in, y_out):
+def check_model_accuracy(m: Sequential, x_in, y_out, predict_mode=4):
     predict = m.predict(x_in)
     res = 0
     y_pred, y_exp = [], []
-    for pr_line, ex_line in zip(predict, y_out):
-        pr_line = [round(a * 3 + 2) for a in pr_line]
-        y_pred.append(pr_line)
-        ex_line = [round(a * 3 + 2) for a in ex_line]
-        y_exp.append(ex_line)
-        res += sum(a == b for a, b in zip(pr_line, ex_line))
+    if predict_mode == 4:
+        for pr_line, ex_line in zip(predict, y_out):
+            pr_line = [round(a * 3 + 2) for a in pr_line]
+            y_pred.append(pr_line)
+            ex_line = [round(a * 3 + 2) for a in ex_line]
+            y_exp.append(ex_line)
+            res += sum(a == b for a, b in zip(pr_line, ex_line))
+        res = 100 * res / (len(y_out) * len(y_out[0]))
+    elif predict_mode == 1:
+        for pr_el, ex_el in zip(predict, y_out):
+            pr_el = round(pr_el[0] * 4 * 3 + 8, 2)
+            y_pred.append(pr_el / 4)
+            ex_el = round(ex_el * 4 * 3 + 8, 2)
+            y_exp.append(ex_el / 4)
+            res += int(pr_el == ex_el)
+        res = 100 * res / len(y_out)
 
-    res = 100 * res / (len(y_out) * len(y_out[0]))
     print(f"result (%) == {res}%")
-    show_plot(y_pred, y_exp)
+    show_plot(y_pred, y_exp, predict_mode=predict_mode)
 
     return res
 
@@ -212,6 +244,41 @@ def prediction_5_test():
     check_model_accuracy(model, x, y)
 
 
+################################
+# Исследование № 6
+# Входные данные:
+#     1 Баллы ЕГЭ
+# Выходные данные (1-й семестр):
+#     1 средний балл по всем предметам (1-й семестр)
+################################
+def prediction_6():
+    model = Sequential()
+    model.add(Dense(units=16, activation='relu', input_dim=1))
+    model.add(Dense(units=32, activation='relu'))
+    model.add(Dense(units=16, activation='relu'))
+    model.add(Dense(units=1, activation='sigmoid'))
+
+    model.compile(optimizer='adam', loss='mean_absolute_error', metrics=['accuracy'])
+
+    from data import dataset_6
+    x, y = dataset_6()
+
+    model.fit(x=x, y=y, epochs=20000)
+
+    result = check_model_accuracy(model, x, y, predict_mode=1)
+
+    model.save(filepath=f'models/predictions_6/model_{result:.4f}.h5')
+
+
+def prediction_6_test():
+    model = load_model("models/predictions_6/model_4.8387.h5")
+
+    from data import dataset_6
+    x, y = dataset_6()
+
+    check_model_accuracy(model, x, y, predict_mode=1)
+
+
 if __name__ == "__main__":
     pass
     # prediction_1()
@@ -221,4 +288,6 @@ if __name__ == "__main__":
     # prediction_4()
     # prediction_4_test()
     # prediction_5()
-    prediction_5_test()
+    # prediction_5_test()
+    prediction_6()
+    # prediction_6_test()
